@@ -4,3 +4,6 @@
 *.mecab
 NewsAggregatorDataset
 *.bin
+*.csv
+*.tab
+*.pkl
