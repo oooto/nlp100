@@ -4,32 +4,34 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.optim as optim
 
 class Net(nn.Module):
     def __init__(self, in_units, out_units):
         super(Net, self).__init__()
         self.l1 = nn.Linear(in_units, out_units)
-        self.a1 = nn.Softmax()
 
     def forward(self, x):
-        y = self.a1(self.l1(x))
+        y = self.l1(x)
         return y
 
-
-# データ読み込み
+# データ準備
 folder_path = pathlib.Path(__file__).resolve().parent
 X_train = pd.read_csv(folder_path / "X_train.csv", header=None)
 X_train = torch.from_numpy(X_train.values.astype(np.float32))
+y_train = pd.read_csv(folder_path / "y_train.csv", header=None)
+y_train = torch.tensor(y_train[0].to_list())
 
-X_1to4 = X_train[0:4]
-x_1 = X_train[0]
+x = X_train[0:4]
+y = y_train[0:4]
 
-# NN作成
-net_1to4 = Net(X_1to4.size()[1], 4)
-net_1 = Net(x_1.size()[0], 4)
+net = Net(x.size()[1], 4)
+optimizer = optim.SGD(net.parameters(), lr=0.01)
+criterion = nn.CrossEntropyLoss()
 
-y_1to4 = net_1to4(X_1to4)
-y_1 = net_1(x_1)
-
-print(y_1to4)
-print(y_1)
+for i in range(100):
+    optimizer.zero_grad()
+    output = net(x)
+    loss = criterion(output, y)
+    loss.backward()
+    optimizer.step()
